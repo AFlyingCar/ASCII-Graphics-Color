@@ -89,11 +89,11 @@ def draw(rows,res):
 
 	return [IMG,res]
 
-def keycheck(event):
-	if event == QUIT:
+def keycheck(event,Ktype):
+	if Ktype == QUIT:
 		print "SHUTDOWN!"
 		shutdown()
-	if event == KEYDOWN:
+	if Ktype == KEYDOWN:
 		if event.key == K_ESCAPE:
 			print "SHUTDOWN!"
 			shutdown()
@@ -126,14 +126,18 @@ while IMG_NAME == "":
 		shutdown()
 
 returns = interpret(open(IMG_NAME, "r").read())
-DISP = returns[0]
 IMG_DISP = returns[0]
 ROWS = returns[1]
 
 returns = draw(ROWS,IMG_DISP)
 
+DISP = (int(CONFIG[1].split(":")[1]),int(CONFIG[0].split(":")[1]))
+
 res = returns[1]
 IMG = returns[0]
+IMG_new = IMG
+
+pos = (DISP[0]/2 - IMG.get_width()/2,DISP[1]/2 - IMG.get_height()/2)
 
 print "DISP" + str(DISP)
 print "IMG " + str(IMG_DISP)
@@ -143,21 +147,39 @@ display.fill(WHITE)
 
 display.blit(IMG,(0,0))
 
+velY = 0
+velX = 0
+
+fps = pygame.time.Clock()
+
 while True:
+	fps.tick(50)
+
+	display.fill(WHITE)
+	display.blit(IMG_new,pos)
+
 	for event in pygame.event.get():
-		keycheck(event)
-		if event == KEYDOWN:
+		keycheck(event,event.type)
+	
+		if event.type == KEYDOWN:
+	
 			if event.key == K_LEFTBRACKET:
-				res = (res[0]-5,res[1]-5)
-				IMG = pygame.transform.scale(IMG,res)
-				display.blit(IMG,(0,0))
-				print "smaller"
+				velX = -3
+				velY = -3
 
 			elif event.key == K_RIGHTBRACKET:
-				res = (res[0]+5,res[1]+5)
-				IMG = pygame.transform.scale(IMG,res)
-				display.blit(IMG,(0,0))
-				print "bigger"
+				velX = 3
+				velY = 3
+
+		if event.type == KEYUP:
+			velX = 0
+			velY = 0
+
+	if res[0] + velY <= 0: velY = 0
+	if res[1] + velX <= 0: velX = 0
+
+	res = (res[0]+velY,res[1]+velX)
+	IMG_new = pygame.transform.scale(IMG,res)
 
 	pygame.display.update()
 
