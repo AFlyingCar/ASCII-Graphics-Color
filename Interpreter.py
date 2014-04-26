@@ -7,6 +7,7 @@ import pygame, os, sys
 from pygame.locals import *
 
 WHITE = (255,255,255)
+BLACK = (0,0,0)
 
 def shutdown():
 	sys.exit()
@@ -15,10 +16,8 @@ def shutdown():
 ######Interpret the data######
 def interpret(data):
 	data = data.split("\n")
-	H_DEF = int(data[0].split(":")[1])
-	W_DEF = int(data[1].split(":")[1])
-	h = H_DEF
-	w = W_DEF
+	h = int(data[0].split(":")[1])
+	w = int(data[1].split(":")[1])
 	rows = []
 	scale = ""
 
@@ -72,8 +71,6 @@ def draw(rows,res):
 
 	print "result: " + str(pixels[0][0])
 
-	#print pixels
-
 	for row in pixels:
 		for pixel in row:
 		 	try:
@@ -84,8 +81,6 @@ def draw(rows,res):
 		x = 0
 
 	res = list(res)
-
-	#IMG = pygame.transform.scale(IMG,res)
 
 	return [IMG,res]
 
@@ -103,7 +98,6 @@ pygame.init()
 IMG_NAME = ""
 IMG_DATA = ""
 scale = ""
-retry = 0
 HEIGHT = 0
 WIDTH = 0
 returns = []
@@ -116,14 +110,19 @@ while IMG_NAME == "":
 	print "Please move the file into the current folder (" + str(os.getcwd()) + ")."
 	IMG_NAME = raw_input("Name of file to open:\n> ")
 
+	if IMG_NAME.lower() == "exit":
+		print "Goodbye."
+		shutdown()
+
 	if IMG_NAME not in os.listdir(os.getcwd()):
 		print "File not found."
-		retry+=1
 		IMG_NAME = ""
+	
+	elif not IMG_NAME.lower().endswith(".agc"):
+		print "Can only open *.agc files."
+		IMG_NAME = ""
+	
 	else: break
-
-	if retry >= 5:
-		shutdown()
 
 returns = interpret(open(IMG_NAME, "r").read())
 IMG_DISP = returns[0]
